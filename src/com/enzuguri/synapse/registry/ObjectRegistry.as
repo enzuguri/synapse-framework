@@ -27,11 +27,9 @@ package com.enzuguri.synapse.registry
 			}
 		}
 
-		public function retrieveNamed(name:String):*
+		public function resolveNamed(name:String, target:Object = null):*
 		{
 			var instance:IInstanceProxy = _nameHash[name];
-			
-			trace("retreieving named", name, instance);
 			
 			if(instance)
 				return instance.resolve(this);
@@ -43,22 +41,23 @@ package com.enzuguri.synapse.registry
 		
 		public function registerProxy(proxy:IInstanceProxy, name:String):void
 		{
-			trace("registering proxy as ", name);
 			_nameHash[name] = proxy;
 		}
 		
 		
 		
-		public function retrieveTyped(type:Class):*
+		public function resolveTyped(type:Class, instance:Object = null):*
 		{
-			return retrieveNamed(getClassName(type));
+			return resolveNamed(getClassName(type), instance);
 		}
+
+		
 		
 		public function removeNamed(name : String, dispose:Boolean = true) : void
 		{
-			var proxy:IInstanceProxy = retrieveNamed(name);
+			var proxy:IInstanceProxy = resolveNamed(name);
 			if (proxy && dispose)
-				proxy.disposeInstance();
+				proxy.dispose();
 			delete _nameHash[name];	
 		}
 
@@ -105,12 +104,12 @@ package com.enzuguri.synapse.registry
 		
 		public function hasNamed(name : String) : Boolean
 		{
-			return retrieveNamed(name) != null;
+			return resolveNamed(name) != null;
 		}
 		
 		public function hasTyped(type : Class) : Boolean
 		{
-			return retrieveTyped(type) != null;
+			return resolveTyped(type) != null;
 		}
 	}
 }

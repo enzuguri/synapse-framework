@@ -44,7 +44,7 @@ package com.enzuguri.synapse.builder.asmetadata
 
 		
 		public function buildWithClass(registry:IObjectRegistry, clazz:Class, name:Object = null, 
-			type:String = InstanceProxy.SINGLETON):void
+			type:String = "singleton"):void
 		{
 			
 			if(name is Class)
@@ -52,13 +52,42 @@ package com.enzuguri.synapse.builder.asmetadata
 			else if(!name)
 				name = getClassName(clazz);
 			
-			trace("clazz registered under", name);
-				
 			var proxy:IInstanceProxy = createInstanceProxy(name as String, clazz, type);
 			proxy = processInjections(clazz, proxy);		
 			registry.registerProxy(proxy, proxy.name);
 		}
 		
+		
+		
+		protected function getRealConstrcutorXML(clazz:Class, length:int):XML
+		{
+			trace("contructor length", length);
+			var object:Object;
+			try
+			{
+				switch (length)
+				{
+					case 0 : (object = new clazz());break;
+					case 1 : (object = new clazz(null)); break;
+					case 2 : (object = new clazz(null, null)); break;
+					case 3 : (object = new clazz(null, null, null)); break;
+					case 4 : (object = new clazz(null, null, null, null)); break;
+					case 5 : (object = new clazz(null, null, null, null, null)); break;
+					case 6 : (object = new clazz(null, null, null, null, null, null)); break;
+					case 7 : (object = new clazz(null, null, null, null, null, null, null)); break;
+					case 8 : (object = new clazz(null, null, null, null, null, null, null, null)); break;
+					case 9 : (object = new clazz(null, null, null, null, null, null, null, null, null)); break;
+					case 10 : (object = new clazz(null, null, null, null, null, null, null, null, null, null)); break;
+				}
+			}
+			catch (error : Error)
+			{
+				trace(error);
+			}
+			
+			return describeType(object || clazz);
+		}
+
 		
 		
 		protected function processInjections(clazz:Class, proxy:IInstanceProxy):IInstanceProxy
@@ -81,9 +110,22 @@ package com.enzuguri.synapse.builder.asmetadata
 		
 		protected function determineMethods(description:XML, proxy:IInstanceProxy):void
 		{
-			for each (var node:XML in description.factory.method.metadata.(@name == MetaDataType.INJECT))
+			for each (var node:XML in description.factory.method.metadata.(@name == "Inject"))
 			{
-				proxy.addProcess(createMethodProcess(node));
+				trace("debug method\n", node.parent());
+				var methodName:String = node.parent().@name.toString();
+				var registryNames:Array = [];
+				
+				var index:int = 0; 
+				for each (var parameter : XML in node.parent().parameter)
+				{
+					registryNames[index] = parameter.@type.toString();
+					index++;
+				}
+				
+				trace("debug method keys:", registryNames);
+				
+				proxy.addProcess(new MethodInjectionProcess(methodName, registryNames));
 			}
 		}
 		
@@ -92,42 +134,28 @@ package com.enzuguri.synapse.builder.asmetadata
 		protected function determineVariables(description:XML, proxy:IInstanceProxy):void
 		{
 			for each (var node:XML in description.factory.*.
-				(name() == MetaDataType.VARIABLE || name() == MetaDataType.ACCESSOR).metadata.(@name == MetaDataType.INJECT))
+				(name() == "variable" || name() == "accessor").metadata.(@name == "Inject"))
 			{
-				proxy.addProcess(createPropertyProcess(node));
+				var propertyName:String = node.parent().@name.toString();
+				var registryName:String = node.parent().@type.toString();
+			
+				if (node.hasOwnProperty('arg') && node.arg.(@key == 'name').length)
+					registryName = node.arg.@value.toString();
+				
+				proxy.addProcess(new PropertyInjectionProcess(propertyName, registryName));
+				
 			}
 		}
 		
 		
-		protected function createMethodProcess(node:XML):IInjectionProcess
-		{
-			trace("debug method", node);
-			var methodName:String;
-			var registryNames:Array = [];
-			return new MethodInjectionProcess(methodName, registryNames);
-		}
-
 		
-		
-		private function createPropertyProcess(node:XML):IInjectionProcess
-		{
-			var propertyName:String = node.parent().@name.toString();
-			var registryName:String = node.parent().@type.toString();
-			
-			if (node.hasOwnProperty('arg') && node.arg.(@key == 'name').length)
-				registryName = node.arg.@value.toString();
-				
-			trace("debug prop", propertyName, registryName);
-			return new PropertyInjectionProcess(propertyName, registryName);
-		}
-
-		
-		
-		private function determineConstructor(description:XML, clazz:Class, proxy:IInstanceProxy):void
+		protected function determineConstructor(description:XML, clazz:Class, proxy:IInstanceProxy):void
 		{
 			var node:XML = description.factory.constructor[0];
 			if (node)
 			{
+				var xmk:XML = getRealConstrcutorXML(clazz, node.children().length());
+				//trace(xmk);
 //				proxy.addProcess(process)
 			}
 			else

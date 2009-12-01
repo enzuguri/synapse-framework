@@ -12,6 +12,7 @@ package com.enzuguri.synapse.registry.composite
 		
 		public function CompositeRegistry(autoAdd : Boolean = true)
 		{
+			_referencedRegistries = [];
 			super(autoAdd);
 		}
 		
@@ -26,27 +27,48 @@ package com.enzuguri.synapse.registry.composite
 			
 		}
 		
-		protected function retrieveFromReferencedRegistries(name:String):*
+		protected function resolveNameFromRegistries(name:String, target:Object = null):*
 		{
 			var len : int = _referencedRegistries.length;
 			var result:Object;
 			for (var i : int = 0; i < len; i++) 
 			{
-				result = (_referencedRegistries[i] as IObjectRegistry).retrieveNamed(name);
+				result = (_referencedRegistries[i] as IObjectRegistry).resolveNamed(name, target);
 				if (result)
 					break;
 			}
 			return result;
 		}
 
-		override public function retrieveNamed(name : String) : *
+		protected function resolveTypeFromRegistries(type:Class, target:Object = null):*
 		{
-			var result:Object = super.retrieveNamed(name);
-			if(!result)
-				return retrieveFromReferencedRegistries(name);
+			var len : int = _referencedRegistries.length;
+			var result:Object;
+			for (var i : int = 0; i < len; i++) 
+			{
+				result = (_referencedRegistries[i] as IObjectRegistry).resolveTyped(type, target);
+				if (result)
+					break;
+			}
 			return result;
 		}
 
+		override public function resolveNamed(name : String, target:Object = null) : *
+		{
+			var result:Object = super.resolveNamed(name, target);
+			if(!result)
+				return resolveNameFromRegistries(name, target);
+			return result;
+		}
+
+		override public function resolveTyped(type : Class, target:Object = null) : *
+		{
+			var result:Object = super.resolveTyped(type, target);
+			if(!result)
+				return resolveTypeFromRegistries(type, target);
+			return result;
+		}
+		
 		public function listReferencedRegistries() : Array
 		{
 			return _referencedRegistries;

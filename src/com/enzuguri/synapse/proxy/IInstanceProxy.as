@@ -8,7 +8,11 @@ package com.enzuguri.synapse.proxy
 	 */
 	public interface IInstanceProxy 
 	{
-		function get currentInstance() : Object;
+		function get currentInstance() :Object;
+		
+		function get processList():Array;
+		
+		function dispose():void;
 		
 		function disposeInstance(instance:Object = null):void;
 		

@@ -1,5 +1,6 @@
 package com.enzuguri.synapse.wire 
 {
+	import flash.events.IEventDispatcher;
 	import com.enzuguri.synapse.registry.IObjectRegistry;
 	import flash.events.Event;
 
@@ -13,5 +14,11 @@ package com.enzuguri.synapse.wire
 		function triggerEvent(event:Event):void;
 		
 		function set registry(value:IObjectRegistry):void;
+		
+		function watchDispatcher(dispatcher:IEventDispatcher, eventTypes:Array):void;
+		
+		function ignoreDispatcher(dispatcher:IEventDispatcher, eventTypes:Array):void;
+
+
 	}
 }

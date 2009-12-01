@@ -36,7 +36,7 @@ package com.enzuguri.synapse.process
 					var len:int = _registryNames.length;
 					for (var i : int = 0; i < len; i++) 
 					{
-						argArray[i] = registry.retrieveNamed(_registryNames[i]);
+						argArray[i] = registry.resolveNamed(_registryNames[i]);
 					}
 					
 					(target[_methodName] as Function).apply(this, argArray);
@@ -54,6 +54,12 @@ package com.enzuguri.synapse.process
 		public function removeInjection(target : Object) : Object
 		{
 			return target;
+		}
+		
+		
+		
+		public function dispose():void
+		{
 		}
 	}
 }

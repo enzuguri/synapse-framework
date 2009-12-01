@@ -10,6 +10,12 @@ package com.enzuguri.synapse.process
 		extends NullConstructorProcess
 	{
 		
+		public function ConstructorProcess(clazz:Class) 
+		{
+			super(clazz);
+		}
+
+		
 		
 		override public function applyInjection(registry:IObjectRegistry, target:Object):Object
 		{

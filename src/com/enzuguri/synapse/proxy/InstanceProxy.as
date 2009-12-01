@@ -108,5 +108,28 @@ package com.enzuguri.synapse.proxy
 		{
 			return _instance;
 		}
+		
+		
+		
+		public function dispose():void
+		{
+			disposeInstance();
+			
+			var i:int = _processList.length;
+			while(i--)
+			{
+				(_processList[i] as IInjectionProcess).dispose();
+			}
+			
+			_processList.length = 0;
+			_clazz = null;
+		}
+		
+		
+		
+		public function get processList():Array
+		{
+			return _processList;
+		}
 	}
 }

@@ -18,6 +18,16 @@ package com.enzuguri.synapse.wire
 			_types = types;
 		}
 		
+		
+		
+		public function dispose():void
+		{
+			_translations = null;
+			_types = null;
+		}
+
+		
+		
 		public function isTriggeredBy(event : Event) : Boolean
 		{
 			return _types.indexOf(event.type) > -1;

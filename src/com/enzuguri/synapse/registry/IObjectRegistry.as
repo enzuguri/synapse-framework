@@ -12,9 +12,9 @@ package com.enzuguri.synapse.registry
 	
 		function hasTyped(type:Class):Boolean;
 		
-		function retrieveNamed(name:String):*;
+		function resolveNamed(name:String, instance:Object = null):*;
 		
-		function retrieveTyped(type:Class):*;
+		function resolveTyped(type:Class, instance:Object = null):*;
 		
 		function removeNamed(name:String, dispose:Boolean = true):void;
 		

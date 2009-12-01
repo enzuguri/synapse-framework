@@ -30,5 +30,11 @@ package com.enzuguri.synapse.process
 		{
 			return target;
 		}
+		
+		
+		
+		public function dispose():void
+		{
+		}
 	}
 }

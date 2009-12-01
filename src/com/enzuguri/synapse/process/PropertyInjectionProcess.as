@@ -31,7 +31,7 @@ package com.enzuguri.synapse.process
 			{
 				try
 				{
-					target[_propertyName] = registry.retrieveNamed(_registryName);
+					target[_propertyName] = registry.resolveNamed(_registryName);
 				}
 				catch(err:Error)
 				{
@@ -56,6 +56,13 @@ package com.enzuguri.synapse.process
 				}
 			}
 			return target;
+		}
+		
+		
+		
+		public function dispose():void
+		{
+			
 		}
 	}
 }

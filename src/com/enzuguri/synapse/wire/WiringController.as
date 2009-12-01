@@ -1,5 +1,7 @@
 package com.enzuguri.synapse.wire 
 {
+	import flash.events.IEventDispatcher;
+
 	import com.enzuguri.synapse.registry.IObjectRegistry;
 
 	import flash.events.Event;
@@ -58,6 +60,34 @@ package com.enzuguri.synapse.wire
 		public function set registry(value:IObjectRegistry) : void
 		{
 			_registry = value;
+		}
+		
+		
+		
+		public function watchDispatcher(dispatcher:IEventDispatcher, eventTypes:Array):void
+		{
+			if(dispatcher)
+			{
+				var len : int = eventTypes.length;
+				for (var i : int = 0; i < len; i++) 
+				{
+					dispatcher.addEventListener(eventTypes[i], triggerEvent);
+				}
+			}
+		}
+		
+		
+		
+		public function ignoreDispatcher(dispatcher:IEventDispatcher, eventTypes:Array):void
+		{
+			if(dispatcher)
+			{
+				var len : int = eventTypes.length;
+				for (var i : int = 0; i < len; i++) 
+				{
+					dispatcher.removeEventListener(eventTypes[i], triggerEvent);
+				}
+			}
 		}
 	}
 }

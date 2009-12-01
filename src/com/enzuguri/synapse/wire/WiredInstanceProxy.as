@@ -49,22 +49,10 @@ package com.enzuguri.synapse.wire
 		
 		public function disposeInstance(instance : Object = null) : void
 		{
-			removeListeners(instance as IEventDispatcher);
+			_controller.ignoreDispatcher(instance as IEventDispatcher, _events);
 			_proxy.disposeInstance(instance);
 		}
 		
-		private function removeListeners(dispatcher : IEventDispatcher) : void
-		{
-			if(dispatcher)
-			{
-				var len : int = _events.length;
-				for (var i : int = 0; i < len; i++) 
-				{
-					dispatcher.removeEventListener(_events[i], _controller.triggerEvent);
-				}
-			}
-		}
-
 		public function addProcess(process : IInjectionProcess) : void
 		{
 			_proxy.addProcess(process);
@@ -80,23 +68,10 @@ package com.enzuguri.synapse.wire
 			if(!currentInstance)
 			{
 				var object:Object = _proxy.resolve(registry);
-				configureListeners(object as IEventDispatcher);	
+				_controller.watchDispatcher(object as IEventDispatcher, _events);	
 			}
 			
 			return object || currentInstance;
-		}
-
-		private function configureListeners(dispatcher : IEventDispatcher) : void
-		{
-			trace("configuring listeners on new dispatcher", dispatcher);
-			if(dispatcher)
-			{
-				var len : int = _events.length;
-				for (var i : int = 0; i < len; i++) 
-				{
-					dispatcher.addEventListener(_events[i], _controller.triggerEvent);
-				}
-			}
 		}
 
 		public function get type() : String
@@ -117,6 +92,31 @@ package com.enzuguri.synapse.wire
 		public function get currentInstance() : Object
 		{
 			return _proxy.currentInstance;
+		}
+		
+		
+		
+		public function dispose():void
+		{
+			_proxy.dispose();
+			
+			var i:int = _callbacks.length;
+			while(i--)
+			{
+				(_callbacks[i] as EventCallback).dispose();
+			}
+			_callbacks.length = 0;
+			_callbacks = null;
+			_controller = null;
+			_events.length = 0;
+			_events = null;
+		}
+		
+		
+		
+		public function get processList():Array
+		{
+			return _proxy.processList;
 		}
 	}
 }

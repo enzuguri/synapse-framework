@@ -19,8 +19,8 @@ package com.enzuguri.synapse.builder.wire
 		
 		public function ASWireBuilder(autoAdd:Boolean = true)
 		{
-			super(autoAdd);
 			_controller = new WiringController();
+			super(autoAdd);
 		}
 
 		override protected function postProcess(description : XML, proxy : IInstanceProxy) : IInstanceProxy
@@ -36,15 +36,11 @@ package com.enzuguri.synapse.builder.wire
 			
 			var conNode:XML = description.factory.metadata[0];
 			
-			if(conNode && conNode.(@name == WireMetaDataType.WIRE))
+			if(conNode && conNode.(@name == "Wire"))
 			{
 				var argNode:XML = conNode.arg[0];
 				if(argNode)
-				{
-					trace("we got one!!");
 					types = String(argNode.@value).split(",");
-					trace(types);
-				}
 				
 			}
 			
@@ -67,10 +63,8 @@ package com.enzuguri.synapse.builder.wire
 			var types:Array = String(node.arg.@value).split(",");
 			var methodName:String = node.parent().@name;
 			var translations:Array;
-			trace("we found a method", types, methodName);
 			trace(node);
 			return new EventCallback(types, methodName, translations);
-			return null;
 		}
 
 		override public function addToRegistry(registry : IObjectRegistry) : void

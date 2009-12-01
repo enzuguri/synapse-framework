@@ -2,11 +2,10 @@
 package  
 {
 	import com.enzuguri.example.WireReciever;
-	import com.enzuguri.example.WiredDispatcher;
-	import com.enzuguri.synapse.builder.wire.ASWireBuilder;
 	import com.enzuguri.example.InjectedClass;
 	import com.enzuguri.example.InjecteeClass;
-	import com.enzuguri.synapse.builder.asmetadata.ASMetaDataBuilder;
+	import com.enzuguri.example.WiredDispatcher;
+	import com.enzuguri.synapse.builder.wire.ASWireBuilder;
 	import com.enzuguri.synapse.registry.IObjectRegistry;
 	import com.enzuguri.synapse.registry.ObjectRegistry;
 
@@ -30,11 +29,11 @@ package
 			eventBuilder.buildWithClass(registry, InjecteeClass);
 			
 			
-			var bean:Object = registry.retrieveTyped(InjecteeClass);
+			var bean:Object = registry.resolveTyped(InjecteeClass);
 			
 			trace("created and object", bean);
 			
-			var bean2:Object = registry.retrieveTyped(InjecteeClass);
+			var bean2:Object = registry.resolveTyped(InjecteeClass);
 			
 			
 			trace(bean, bean2);
@@ -43,7 +42,7 @@ package
 			
 			eventBuilder.buildWithClass(registry, WiredDispatcher);
 			
-			var instance:WiredDispatcher = registry.retrieveTyped(WiredDispatcher);
+			var instance:WiredDispatcher = registry.resolveTyped(WiredDispatcher);
 			
 			trace("did it work this time?", instance);
 
