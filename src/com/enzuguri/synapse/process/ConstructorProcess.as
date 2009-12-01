@@ -11,10 +11,10 @@ package com.enzuguri.synapse.process
 	{
 		
 		
-		override public function execute(registry:IObjectRegistry, target:Object):Object
+		override public function applyInjection(registry:IObjectRegistry, target:Object):Object
 		{
 			// TODO: Auto-generated method stub
-			return super.execute(registry, target);
+			return super.applyInjection(registry, target);
 		}
 	}
 }

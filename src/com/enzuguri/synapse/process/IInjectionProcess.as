@@ -8,6 +8,8 @@ package com.enzuguri.synapse.process
 	 */
 	public interface IInjectionProcess 
 	{
-		function execute(registry:IObjectRegistry, target:Object):Object
+		function applyInjection(registry:IObjectRegistry, target:Object):Object;
+		
+		function removeInjection(target:Object):Object;
 	}
 }

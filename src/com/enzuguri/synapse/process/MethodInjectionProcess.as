@@ -25,7 +25,7 @@ package com.enzuguri.synapse.process
 
 		
 		
-		public function execute(registry:IObjectRegistry, target:Object):Object
+		public function applyInjection(registry:IObjectRegistry, target:Object):Object
 		{
 			
 			if(target)
@@ -48,6 +48,11 @@ package com.enzuguri.synapse.process
 			}
 			
 			
+			return target;
+		}
+		
+		public function removeInjection(target : Object) : Object
+		{
 			return target;
 		}
 	}

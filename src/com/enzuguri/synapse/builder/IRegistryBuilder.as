@@ -9,5 +9,7 @@ package com.enzuguri.synapse.builder
 	public interface IRegistryBuilder 
 	{
 		function buildIntoRegistry(registry:IObjectRegistry, ...params):void;
+		
+		function addToRegistry(registry:IObjectRegistry):void;
 	}
 }

@@ -21,9 +21,14 @@ package com.enzuguri.synapse.process
 
 		
 		
-		public function execute(registry:IObjectRegistry, target:Object):Object
+		public function applyInjection(registry:IObjectRegistry, target:Object):Object
 		{
 			return new _clazz();
+		}
+		
+		public function removeInjection(target : Object) : Object
+		{
+			return target;
 		}
 	}
 }

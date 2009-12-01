@@ -13,6 +13,5 @@ package com.enzuguri.synapse.builder.asmetadata
 		
 		public static const INJECT:String = 'Inject';
 
-		public static const POST_CONSTRUCT:String = 'PostConstruct';
 	}
 }

@@ -1,6 +1,7 @@
 
 package com.enzuguri.synapse.registry 
 {
+	import com.enzuguri.synapse.proxy.IInstanceProxy;
 	import flash.utils.getQualifiedClassName;
 	import flash.utils.Dictionary;
 	import com.enzuguri.synapse.proxy.InstanceProxy;
@@ -12,18 +13,25 @@ package com.enzuguri.synapse.registry
 		implements IObjectRegistry 
 	{
 
-		private var _nameHash:Dictionary;
+		protected var _nameHash:Dictionary;
 		
 		
 		
-		public function ObjectRegistry() 
+		public function ObjectRegistry(autoAdd:Boolean = true) 
 		{
 			_nameHash = new Dictionary();
+			if (autoAdd)
+			{
+				var name:String = getClassName(IObjectRegistry);
+				_nameHash[name] = new InstanceProxy(name, IObjectRegistry, InstanceProxy.SINGLETON, this);
+			}
 		}
-		
+
 		public function retrieveNamed(name:String):*
 		{
-			var instance:InstanceProxy = _nameHash[name];
+			var instance:IInstanceProxy = _nameHash[name];
+			
+			trace("retreieving named", name, instance);
 			
 			if(instance)
 				return instance.resolve(this);
@@ -33,16 +41,76 @@ package com.enzuguri.synapse.registry
 
 		
 		
-		public function registerInstance(instance:InstanceProxy, name:String):void
+		public function registerProxy(proxy:IInstanceProxy, name:String):void
 		{
-			_nameHash[name] = instance;
+			trace("registering proxy as ", name);
+			_nameHash[name] = proxy;
 		}
 		
 		
 		
 		public function retrieveTyped(type:Class):*
 		{
-			return retrieveNamed(getQualifiedClassName(type));
+			return retrieveNamed(getClassName(type));
+		}
+		
+		public function removeNamed(name : String, dispose:Boolean = true) : void
+		{
+			var proxy:IInstanceProxy = retrieveNamed(name);
+			if (proxy && dispose)
+				proxy.disposeInstance();
+			delete _nameHash[name];	
+		}
+
+		public function removeTyped(type : Class, dispose:Boolean = true) : void
+		{
+			removeNamed(getClassName(type), dispose);
+		}
+
+		public function disposeInstance(instance : Object, remove : Boolean = true) : void
+		{
+			var proxy:IInstanceProxy = getProxyFromInstance(instance);
+			if(proxy)
+			{
+				proxy.disposeInstance(instance);
+				if (remove)
+					delete _nameHash[proxy.name];
+			}
+		}
+		
+		protected function getClassName(value:Object):String
+		{
+			return getQualifiedClassName(value);
+		}
+		
+		public function getProxyFromInstance(instance : Object) : IInstanceProxy
+		{
+			var proxy:IInstanceProxy = _nameHash[getClassName(instance)];
+			
+			if(!proxy)
+			{
+				var item:IInstanceProxy;
+				for (var name : String in _nameHash) 
+				{
+					item = _nameHash[name];
+					if (item.matchesInstance(instance))
+					{
+						proxy = item;
+						break;
+					}
+				}
+			}
+			return proxy;
+		}
+		
+		public function hasNamed(name : String) : Boolean
+		{
+			return retrieveNamed(name) != null;
+		}
+		
+		public function hasTyped(type : Class) : Boolean
+		{
+			return retrieveTyped(type) != null;
 		}
 	}
 }
