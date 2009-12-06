@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<testsuite name="com.enzuguri.synapse.tests.RegistryTests" tests="1" failures="0" errors="0" skipped="0" time="0.0">
-  <testcase classname="com.enzuguri.synapse.tests::RegistryTests" name="testCompositeRegistry" time="0.000" status="success"/>
-</testsuite>

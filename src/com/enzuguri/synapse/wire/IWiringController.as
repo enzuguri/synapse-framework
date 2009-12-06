@@ -1,17 +1,18 @@
 package com.enzuguri.synapse.wire 
 {
-	import flash.events.IEventDispatcher;
 	import com.enzuguri.synapse.registry.IObjectRegistry;
-	import flash.events.Event;
+
+	import flash.events.IEventDispatcher;
 
 	/**
 	 * @author alex
 	 */
 	public interface IWiringController 
+		extends IEventDispatcher 
 	{
-		function registerProxyEvents(proxy : WiredInstanceProxy, types:Array) : void;
+		function removeCallback(callback : EventCallback) : void;
 		
-		function triggerEvent(event:Event):void;
+		function registerCallback(callback : EventCallback) : void;
 		
 		function set registry(value:IObjectRegistry):void;
 		

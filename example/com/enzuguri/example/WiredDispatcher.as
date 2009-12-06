@@ -1,15 +1,14 @@
 package com.enzuguri.example 
 {
+	import flash.display.Sprite;
 	import flash.events.Event;
-	import flash.events.EventDispatcher;
 
-	
 	/**
 	 * @author alex
 	 */
 	[Wire(dispatch="complete")]
 	public class WiredDispatcher 
-		extends EventDispatcher 
+		extends Sprite 
 	{
 		public function WiredDispatcher()
 		{

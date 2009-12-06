@@ -1,5 +1,6 @@
 package com.enzuguri.synapse.wire 
 {
+	import flash.events.EventDispatcher;
 	import flash.events.IEventDispatcher;
 
 	import com.enzuguri.synapse.registry.IObjectRegistry;
@@ -11,57 +12,45 @@ package com.enzuguri.synapse.wire
 	 * @author alex
 	 */
 	public class WiringController 
-		implements IWiringController 
+		extends EventDispatcher
+			implements IWiringController 
 	{
 		
-		protected var _proxyMap : Dictionary;
-		
-		protected var _registry:IObjectRegistry;		
-		
+		protected var _registry:IObjectRegistry;
+		protected var _callbackMap : Dictionary;		
+
 		public function WiringController() 
 		{
-			_proxyMap = new Dictionary();
+			_callbackMap = new Dictionary();
 		}
 		
-		public function triggerEvent(event : Event) : void
+		override public function dispatchEvent(event : Event) : Boolean
 		{
-			trace("trigger the wiring controller!!", _registry, event.type);
-			var proxies:Array = _proxyMap[event.type];
+			var callbacks:Array = _callbackMap[event.type];
 			
-			if(proxies)
-			{
-				var len : int = proxies.length;
-				var proxy:WiredInstanceProxy;
-				for (var i : int = 0; i < len; i++) 
-				{
-					proxy = proxies[i] as WiredInstanceProxy;
-					proxy.recieveEvent(event, proxy.resolve(_registry));
-				}
-			}
+			if (!callbacks)
+				return super.dispatchEvent(event);
 			
-		}
-		
-		public function registerProxyEvents(proxy : WiredInstanceProxy, types : Array) : void
-		{
-			var len:int = types.length;
-			var type:String;
+			var sucess:Boolean = true;
+			var len:int = callbacks.length;
+			
+			var callback:EventCallback;
 			
 			for (var i : int = 0; i < len; i++) 
 			{
-				type = types[i];
-				var proxies:Array = _proxyMap[type];
-				if(!proxies)
-					proxies = _proxyMap[type] = [proxy];
-				else if(proxies.indexOf(proxy) == -1)	
-					proxies[proxies.length] = proxy;
+				callback = callbacks[i];
+				sucess = callback.executeCallback(event, callback.resolveTarget(_registry));
+				if(!sucess)
+					break;
 			}
+			
+			return sucess && super.dispatchEvent(event);
 		}
 		
 		public function set registry(value:IObjectRegistry) : void
 		{
 			_registry = value;
 		}
-		
 		
 		
 		public function watchDispatcher(dispatcher:IEventDispatcher, eventTypes:Array):void
@@ -71,11 +60,10 @@ package com.enzuguri.synapse.wire
 				var len : int = eventTypes.length;
 				for (var i : int = 0; i < len; i++) 
 				{
-					dispatcher.addEventListener(eventTypes[i], triggerEvent);
+					dispatcher.addEventListener(eventTypes[i], dispatchEvent);
 				}
 			}
 		}
-		
 		
 		
 		public function ignoreDispatcher(dispatcher:IEventDispatcher, eventTypes:Array):void
@@ -85,9 +73,47 @@ package com.enzuguri.synapse.wire
 				var len : int = eventTypes.length;
 				for (var i : int = 0; i < len; i++) 
 				{
-					dispatcher.removeEventListener(eventTypes[i], triggerEvent);
+					dispatcher.removeEventListener(eventTypes[i], dispatchEvent);
 				}
 			}
+		}
+		
+		public function registerCallback(callback : EventCallback) : void
+		{
+			var callbacks:Array = _callbackMap[callback.type];
+			if(!callbacks)
+				callbacks = _callbackMap[callback.type] = [];
+				
+			callbacks[callbacks.length] = callback;
+			
+			callbacks.sortOn("order");	
+		}
+		
+		public function removeCallback(callback : EventCallback) : void
+		{
+			var callbacks:Array = _callbackMap[callback.type];
+			if(!callbacks)
+			{
+				var index : int = callbacks.indexOf(callback);
+				if(index > -1)
+					callbacks.splice(index, 1);
+			}
+		}
+		
+		override public function toString() : String 
+		{
+			var dictArray:Array = [];
+			
+			for (var eventName : String in _callbackMap) 
+			{
+				dictArray[dictArray.length] = eventName + ":\n[\n" + (_callbackMap[eventName] as Array).join(", \n") + "\n]";
+			}
+			
+			var strout:String = "WiringController\n{" + 
+								"\n\tregistry:" + _registry + 
+								"\n\tcallbackMap:\n\t" + dictArray.join(", \n\t") + 
+								"}";
+			return strout;
 		}
 	}
 }

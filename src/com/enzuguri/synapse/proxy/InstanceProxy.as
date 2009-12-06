@@ -21,6 +21,8 @@ package com.enzuguri.synapse.proxy
 
 		private var _processList : Array;
 		private var _name : String;
+	
+		private var _processed : Boolean;
 
 		public function InstanceProxy(name:String, clazz:Class, type:String = SINGLETON, instance:Object = null) 
 		{
@@ -40,7 +42,7 @@ package com.enzuguri.synapse.proxy
 		
 		public function resolve(registry:IObjectRegistry):*
 		{
-			if (_type == SINGLETON && _instance)
+			if (_instance && processed)
 				return _instance;
 			
 			var output:Object = create(registry);
@@ -53,12 +55,17 @@ package com.enzuguri.synapse.proxy
 		
 		protected function create(registry : IObjectRegistry) : Object
 		{
-			var output:Object;
+			var output:Object = _type == SINGLETON ? _instance : null;
+			
+			// Set this here for looped references
+			_processed = true;			
+			
 			var len:int = _processList.length;	
 			for (var i : int = 0;i < len; i++) 
 			{
 				output = (_processList[i] as IInjectionProcess).applyInjection(registry, output);
 			}
+			
 			return output;
 		}
 
@@ -125,11 +132,26 @@ package com.enzuguri.synapse.proxy
 			_clazz = null;
 		}
 		
-		
-		
 		public function get processList():Array
 		{
 			return _processList;
+		}
+		
+		public function toString() : String 
+		{
+			var strout:String = "InstanceProxy\n{" +
+								"\n\ttype:" + _type +
+								"\n\tname:" + name +
+								"\n\tclass:" + _clazz +
+								"\n\tprocessList:" + _processList.join(", ") + 
+								"\n\tinstance:" + _instance +  
+								"\n}";	
+			return strout;
+		}
+		
+		public function get processed() : Boolean
+		{
+			return _processed;
 		}
 	}
 }

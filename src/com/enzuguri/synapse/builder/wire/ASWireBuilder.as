@@ -51,20 +51,40 @@ package com.enzuguri.synapse.builder.wire
 			for each (var node:XML in description.factory.method.metadata.(@name == "Wire"))
 			{
 				if(!wireProxy) wireProxy = new WiredInstanceProxy(proxy, _controller);
-				wireProxy.addCallback(createEventCallback(node));
+				createEventCallbacks(node, wireProxy);
 			}
 				
 			return wireProxy || proxy;
 		}
 		
-		private function createEventCallback(node : XML) : EventCallback
+		private function createEventCallbacks(node:XML, proxy:WiredInstanceProxy) : void
 		{
-			
-			var types:Array = String(node.arg.@value).split(",");
-			var methodName:String = node.parent().@name;
+			var types:Array = [];
 			var translations:Array;
-			trace(node);
-			return new EventCallback(types, methodName, translations);
+			var order:int = 1;
+			var methodName:String = node.parent().@name;
+			
+			for each(var arg:XML in node.arg)
+			{
+				switch(String(arg.@key))
+				{
+					case "handle":
+						types = String(arg.@value).split(",");
+						break;
+					case "translations":
+						translations = String(arg.@value).split(",");
+						break;
+					case "order":
+						order = parseInt(arg.@value);
+						break;		
+				}
+			}
+			
+			var len:int = types.length;
+			for (var i : int = 0; i < len; i++) 
+			{
+				proxy.addCallback(new EventCallback(types[i], methodName, order, translations));
+			}
 		}
 
 		override public function addToRegistry(registry : IObjectRegistry) : void
@@ -78,6 +98,11 @@ package com.enzuguri.synapse.builder.wire
 				var p:IInstanceProxy = createInstanceProxy(name, IWiringController, InstanceProxy.SINGLETON, _controller);
 				registry.registerProxy(p, name);
 			}
+		}
+		
+		public function get controller() : IWiringController
+		{
+			return _controller;
 		}
 	}
 }

@@ -4,7 +4,6 @@ package com.enzuguri.synapse.wire
 	import com.enzuguri.synapse.proxy.IInstanceProxy;
 	import com.enzuguri.synapse.registry.IObjectRegistry;
 
-	import flash.events.Event;
 	import flash.events.IEventDispatcher;
 
 	/**
@@ -30,23 +29,12 @@ package com.enzuguri.synapse.wire
 		{
 			if(callback)
 			{
+				callback.targetName = name;
 				_callbacks[_callbacks.length] = callback;
-				_controller.registerProxyEvents(this, callback.types);
+				_controller.registerCallback(callback);
 			}
 		}
 
-		public function recieveEvent(event : Event, instance:Object) : void
-		{
-			var len:int = _callbacks.length;
-			var callback:EventCallback;
-			for (var i : int = 0;i < len; i++) 
-			{
-				callback = _callbacks[i];
-				if(callback.isTriggeredBy(event))
-					callback.executeCallback(event, instance);
-			}
-		}
-		
 		public function disposeInstance(instance : Object = null) : void
 		{
 			_controller.ignoreDispatcher(instance as IEventDispatcher, _events);
@@ -65,9 +53,10 @@ package com.enzuguri.synapse.wire
 
 		public function resolve(registry : IObjectRegistry) : *
 		{
-			if(!currentInstance)
+			var object:Object;
+			if(!currentInstance && !processed)
 			{
-				var object:Object = _proxy.resolve(registry);
+				object = _proxy.resolve(registry);
 				_controller.watchDispatcher(object as IEventDispatcher, _events);	
 			}
 			
@@ -101,9 +90,12 @@ package com.enzuguri.synapse.wire
 			_proxy.dispose();
 			
 			var i:int = _callbacks.length;
+			var callback:EventCallback;
 			while(i--)
 			{
-				(_callbacks[i] as EventCallback).dispose();
+				callback = _callbacks[i];
+				_controller.removeCallback(callback);
+				callback.dispose();
 			}
 			_callbacks.length = 0;
 			_callbacks = null;
@@ -117,6 +109,11 @@ package com.enzuguri.synapse.wire
 		public function get processList():Array
 		{
 			return _proxy.processList;
+		}
+		
+		public function get processed() : Boolean
+		{
+			return _proxy.processed;
 		}
 	}
 }
