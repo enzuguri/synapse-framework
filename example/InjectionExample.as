@@ -1,6 +1,7 @@
 
 package  
 {
+	import com.enzuguri.example.InjectionConfig;
 	import com.enzuguri.example.WireReciever;
 	import com.enzuguri.example.InjectedClass;
 	import com.enzuguri.example.InjecteeClass;
@@ -24,6 +25,18 @@ package
 			
 			var eventBuilder:ASWireBuilder = new ASWireBuilder();
 			eventBuilder.addToRegistry(registry);
+			
+			
+			eventBuilder.buildIntoRegistry(registry, InjectionConfig);
+			
+//			registry.resolveTyped("iidhgksdh")
+			
+			
+			
+			
+			
+			
+			
 			
 			eventBuilder.buildWithClass(registry, InjectedClass);
 			eventBuilder.buildWithClass(registry, InjecteeClass);

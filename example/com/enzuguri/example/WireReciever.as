@@ -7,6 +7,10 @@ package com.enzuguri.example
 	 */
 	public class WireReciever 
 	{
+		
+		
+		
+		
 		[Wire(handle="complete")]
 		public function handleComplete(event:Event):void
 		{
