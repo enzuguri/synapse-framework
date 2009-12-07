@@ -12,12 +12,12 @@ package com.enzuguri.synapse.wire
 		private var _type : String;
 		private var _methodName : String;
 		private var _translations : Array;
-		private var _order : int;
+		private var _priority : int;
 		private var _targetName:String;
 		
-		public function EventCallback(type:String, methodName:String, order:int = 1, translations:Array = null) 
+		public function EventCallback(type:String, methodName:String, priority:int = 0, translations:Array = null) 
 		{
-			_order = order;
+			_priority = priority;
 			_translations = translations;
 			_methodName = methodName;
 			_type = type;
@@ -71,9 +71,9 @@ package com.enzuguri.synapse.wire
 			return _type;
 		}
 		
-		public function get order() : int
+		public function get priority() : int
 		{
-			return _order;
+			return _priority;
 		}
 		
 		public function get targetName() : String
@@ -93,7 +93,7 @@ package com.enzuguri.synapse.wire
 								"\n\tmethod:" + _methodName + 
 								"\n\ttransaltions:" + _translations + 
 								"\n\ttargetName:" + _targetName + 
-								"\n\torder:" + _order + 
+								"\n\tpriority:" + _priority + 
 								"\n}";
 			
 			return strout;

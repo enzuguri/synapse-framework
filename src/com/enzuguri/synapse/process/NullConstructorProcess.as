@@ -26,7 +26,7 @@ package com.enzuguri.synapse.process
 			return new _clazz();
 		}
 		
-		public function removeInjection(target : Object) : Object
+		public function removeInjection(registry:IObjectRegistry, target : Object) : Object
 		{
 			return target;
 		}

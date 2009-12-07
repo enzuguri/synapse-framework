@@ -6,7 +6,10 @@ package com.enzuguri.example
 	/**
 	 * @author alex
 	 */
+	[Wire(dispatch="complete", controller="main")]
 	[Wire(dispatch="complete")]
+	[Wire(dispatch="complete,change", controller="module1")]
+	[Wire(dispatch="change")]
 	public class WiredDispatcher 
 		extends Sprite 
 	{

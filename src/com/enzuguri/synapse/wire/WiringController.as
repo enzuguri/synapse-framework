@@ -31,7 +31,7 @@ package com.enzuguri.synapse.wire
 			if (!callbacks)
 				return super.dispatchEvent(event);
 			
-			var sucess:Boolean = true;
+			var success:Boolean = true;
 			var len:int = callbacks.length;
 			
 			var callback:EventCallback;
@@ -39,12 +39,12 @@ package com.enzuguri.synapse.wire
 			for (var i : int = 0; i < len; i++) 
 			{
 				callback = callbacks[i];
-				sucess = callback.executeCallback(event, callback.resolveTarget(_registry));
-				if(!sucess)
+				success = callback.executeCallback(event, callback.resolveTarget(_registry));
+				if(!success)
 					break;
 			}
 			
-			return sucess && super.dispatchEvent(event);
+			return success && super.dispatchEvent(event);
 		}
 		
 		public function set registry(value:IObjectRegistry) : void
@@ -86,7 +86,7 @@ package com.enzuguri.synapse.wire
 				
 			callbacks[callbacks.length] = callback;
 			
-			callbacks.sortOn("order");	
+			callbacks.sortOn("priority", Array.DESCENDING);	
 		}
 		
 		public function removeCallback(callback : EventCallback) : void

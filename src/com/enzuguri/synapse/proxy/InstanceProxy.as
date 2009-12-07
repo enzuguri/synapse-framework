@@ -69,7 +69,7 @@ package com.enzuguri.synapse.proxy
 			return output;
 		}
 
-		public function disposeInstance(instance:Object = null):void
+		public function disposeInstance(registry:IObjectRegistry, instance:Object = null):void
 		{
 			instance = instance || _instance;
 			
@@ -78,7 +78,7 @@ package com.enzuguri.synapse.proxy
 				var i : int = _processList.length;
 				while(i--)
 				{
-					instance = (_processList[i] as IInjectionProcess).removeInjection(instance);	
+					instance = (_processList[i] as IInjectionProcess).removeInjection(registry, instance);	
 				}
 				// If a singleton, this should remove it
 				if (instance == _instance)
@@ -118,9 +118,9 @@ package com.enzuguri.synapse.proxy
 		
 		
 		
-		public function dispose():void
+		public function dispose(registry:IObjectRegistry):void
 		{
-			disposeInstance();
+			disposeInstance(registry);
 			
 			var i:int = _processList.length;
 			while(i--)

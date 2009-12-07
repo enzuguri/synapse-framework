@@ -26,18 +26,11 @@ package
 			
 			var config:ExampleConfig = new ExampleConfig(this);
 			
-			
-			eventBuilder.buildIntoRegistry(registry, InjectionConfig);
-			
-//			registry.resolveTyped("iidhgksdh")
-			
-			
-			
-			eventBuilder.buildWithClass(registry, InjectedClass);
-			eventBuilder.buildWithClass(registry, InjecteeClass);
 			var registry:IObjectRegistry = new ObjectRegistry();
 			var eventBuilder:ASWireBuilder = new ASWireBuilder();
 			eventBuilder.buildIntoRegistry(registry, config);
+			
+			
 			
 			
 			var bean:Object = registry.resolveTyped(InjecteeClass);

@@ -189,9 +189,7 @@ package com.enzuguri.synapse.builder.asmetadata
 				var xmk:XML = getRealConstrcutorXML(clazz, node.children().length());
 			}
 			else
-			{
 				proxy.addProcess(new NullConstructorProcess(clazz));
-			}
 		}
 
 		
