@@ -2,6 +2,8 @@
 package  
 {
 	import com.enzuguri.example.InjectionConfig;
+	import com.enzuguri.example.ExampleConfig;
+	import com.enzuguri.example.InjectAfter;
 	import com.enzuguri.example.WireReciever;
 	import com.enzuguri.example.InjectedClass;
 	import com.enzuguri.example.InjecteeClass;
@@ -21,10 +23,8 @@ package
 		public function InjectionExample()
 		{
 			
-			var registry:IObjectRegistry = new ObjectRegistry();
 			
-			var eventBuilder:ASWireBuilder = new ASWireBuilder();
-			eventBuilder.addToRegistry(registry);
+			var config:ExampleConfig = new ExampleConfig(this);
 			
 			
 			eventBuilder.buildIntoRegistry(registry, InjectionConfig);
@@ -33,25 +33,26 @@ package
 			
 			
 			
-			
-			
-			
-			
-			
 			eventBuilder.buildWithClass(registry, InjectedClass);
 			eventBuilder.buildWithClass(registry, InjecteeClass);
+			var registry:IObjectRegistry = new ObjectRegistry();
+			var eventBuilder:ASWireBuilder = new ASWireBuilder();
+			eventBuilder.buildIntoRegistry(registry, config);
 			
 			
 			var bean:Object = registry.resolveTyped(InjecteeClass);
 			
-			trace("created and object", bean);
-			
 			var bean2:Object = registry.resolveTyped(InjecteeClass);
+			trace("are these beans the same?", bean, bean2, bean === bean2);
+			/*
+			var injectedAfter:InjectAfter = new InjectAfter();
 			
+			eventBuilder.buildWithValue(registry, injectedAfter);
+			*/
 			
-			trace(bean, bean2);
+			var postIntance:InjectAfter = registry.resolveTyped(InjectAfter);
 			
-			
+			trace("match these two", postIntance, config.injectAfter, postIntance == config.injectAfter);
 			
 			eventBuilder.buildWithClass(registry, WiredDispatcher);
 			

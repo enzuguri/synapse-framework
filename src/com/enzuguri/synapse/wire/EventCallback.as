@@ -1,5 +1,7 @@
 package com.enzuguri.synapse.wire 
 {
+	import com.enzuguri.synapse.registry.IObjectRegistry;
+
 	import flash.events.Event;
 
 	/**
@@ -7,46 +9,94 @@ package com.enzuguri.synapse.wire
 	 */
 	public class EventCallback 
 	{
-		private var _types : Array;
+		private var _type : String;
 		private var _methodName : String;
 		private var _translations : Array;
-
-		public function EventCallback(types:Array, methodName:String, translations:Array = null) 
+		private var _order : int;
+		private var _targetName:String;
+		
+		public function EventCallback(type:String, methodName:String, order:int = 1, translations:Array = null) 
 		{
+			_order = order;
 			_translations = translations;
 			_methodName = methodName;
-			_types = types;
+			_type = type;
 		}
 		
+		public function resolveTarget(registry : IObjectRegistry) : Object
+		{
+			return registry.resolveNamed(_targetName);
+		}
+
 		
 		
 		public function dispose():void
 		{
 			_translations = null;
-			_types = null;
 		}
 
-		
-		
-		public function isTriggeredBy(event : Event) : Boolean
-		{
-			return _types.indexOf(event.type) > -1;
-		}
 
-		public function executeCallback(event : Event, target:Object) : void
+		public function executeCallback(event : Event, target:Object) : Boolean
 		{
 			var params:Array = _translations ? translateEvent(event) : [event];
-			(target[_methodName] as Function).apply(this, params);
+			var success:Boolean = true;
+			try
+			{
+				(target[_methodName] as Function).apply(this, params);
+			}
+			catch(err:WireError)
+			{
+				success = false;
+			}
+			return success;
 		}
-		
+
 		protected function translateEvent(event:Event):Array
 		{
-			return null;
+			var props:Array = [];
+			var len:int = _translations.length;
+			
+			var propName:String;
+			for (var i : int = 0;i < len; i++) 
+			{
+				propName = _translations[i];
+				props[i] = event.hasOwnProperty(propName) ? event[propName] : null;	
+			}
+			
+			return props;
+		}
+
+		public function get type() : String
+		{
+			return _type;
 		}
 		
-		public function get types() : Array
+		public function get order() : int
 		{
-			return _types;
+			return _order;
+		}
+		
+		public function get targetName() : String
+		{
+			return _targetName;
+		}
+		
+		public function set targetName(value : String) : void
+		{
+			_targetName = value;
+		}
+		
+		public function toString() : String 
+		{
+			var strout:String = "EventCallback\n{" + 
+								"\n\ttype:" + _type + 
+								"\n\tmethod:" + _methodName + 
+								"\n\ttransaltions:" + _translations + 
+								"\n\ttargetName:" + _targetName + 
+								"\n\torder:" + _order + 
+								"\n}";
+			
+			return strout;
 		}
 	}
 }

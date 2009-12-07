@@ -27,5 +27,7 @@ package com.enzuguri.synapse.proxy
 		function matchesInstance(instance : Object) : Boolean;
 		
 		function resolve(registry:IObjectRegistry):*;
+		
+		function get processed():Boolean;
 	}
 }

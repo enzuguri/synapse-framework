@@ -1,16 +1,17 @@
 
 package com.enzuguri.synapse.builder.asmetadata 
 {
-	import com.enzuguri.synapse.proxy.IInstanceProxy;
-	import com.enzuguri.synapse.process.MethodInjectionProcess;
-	import com.enzuguri.synapse.process.PropertyInjectionProcess;
-	import com.enzuguri.synapse.process.IInjectionProcess;
-	import com.enzuguri.synapse.process.NullConstructorProcess;
-	import flash.utils.describeType;
-	import flash.utils.getQualifiedClassName;
-	import com.enzuguri.synapse.proxy.InstanceProxy;
 	import com.enzuguri.synapse.builder.IRegistryBuilder;
+	import com.enzuguri.synapse.process.MethodInjectionProcess;
+	import com.enzuguri.synapse.process.NullConstructorProcess;
+	import com.enzuguri.synapse.process.PropertyInjectionProcess;
+	import com.enzuguri.synapse.proxy.IInstanceProxy;
+	import com.enzuguri.synapse.proxy.InstanceProxy;
 	import com.enzuguri.synapse.registry.IObjectRegistry;
+
+	import flash.utils.describeType;
+	import flash.utils.getDefinitionByName;
+	import flash.utils.getQualifiedClassName;
 
 	/**
 	 * @author Alex Fell
@@ -29,17 +30,28 @@ package com.enzuguri.synapse.builder.asmetadata
 		{
 			addToRegistry(registry);
 			
-			var len:int = params.length;
+			var len:int = (params as Array).length;
 			for (var i : int = 0; i < len; i++) 
 			{
 				var config:Object = params[i];
-				parseConfig(config);
+				parseConfig(registry, config);
 			}
 		}
 		
-		protected function parseConfig(config : Object) : void
+		protected function parseConfig(registry:IObjectRegistry, config : Object) : void
 		{
-			var description:XML = describeType(config);
+			var description:XML = describeType(config.constructor);
+			
+			for each (var node:XML in description.factory.*.(name() == "variable" || name() == "accessor"))
+			{
+				var propertyName:String = String(node.@name);
+				var type:String = String(node.@type);
+				
+				if (config[propertyName])
+					buildWithValue(registry, config[propertyName], type);
+				else
+					buildWithClass(registry, getDefinitionByName(type) as Class);
+			}
 		}
 
 		
@@ -54,6 +66,20 @@ package com.enzuguri.synapse.builder.asmetadata
 			
 			var proxy:IInstanceProxy = createInstanceProxy(name as String, clazz, type);
 			proxy = processInjections(clazz, proxy);		
+			registry.registerProxy(proxy, proxy.name);
+		}
+
+		public function buildWithValue(registry:IObjectRegistry, value:Object, name:Object = null):void
+		{
+			var clazz:Class = value.constructor as Class;
+			
+			if(name is Class)
+				name = getClassName(name as Class);
+			else if(!name)
+				name = getClassName(clazz);
+			
+			var proxy:IInstanceProxy = createInstanceProxy(name as String, clazz, "singleton", value);
+			proxy = processInjections(value, proxy);		
 			registry.registerProxy(proxy, proxy.name);
 		}
 		
@@ -85,16 +111,23 @@ package com.enzuguri.synapse.builder.asmetadata
 				trace(error);
 			}
 			
-			return describeType(object || clazz);
+			return describeType(clazz);
 		}
 
 		
 		
-		protected function processInjections(clazz:Class, proxy:IInstanceProxy):IInstanceProxy
+		protected function processInjections(target:Object, proxy:IInstanceProxy):IInstanceProxy
 		{
-			var description:XML = describeType(clazz);
+			var description:XML;
 			
-			determineConstructor(description, clazz, proxy);
+			if(target is Class)
+			{
+				description = describeType(target);
+				determineConstructor(description, target as Class, proxy);
+			}
+			else
+				description = describeType(target.constructor);
+			
 			determineVariables(description, proxy);
 			determineMethods(description, proxy);
 			
@@ -103,6 +136,8 @@ package com.enzuguri.synapse.builder.asmetadata
 
 		protected function postProcess(description : XML, proxy : IInstanceProxy) : IInstanceProxy
 		{
+			// Keep FDT Happy
+			description;
 			return proxy;
 		}
 
@@ -112,7 +147,6 @@ package com.enzuguri.synapse.builder.asmetadata
 		{
 			for each (var node:XML in description.factory.method.metadata.(@name == "Inject"))
 			{
-				trace("debug method\n", node.parent());
 				var methodName:String = node.parent().@name.toString();
 				var registryNames:Array = [];
 				
@@ -123,8 +157,6 @@ package com.enzuguri.synapse.builder.asmetadata
 					index++;
 				}
 				
-				trace("debug method keys:", registryNames);
-				
 				proxy.addProcess(new MethodInjectionProcess(methodName, registryNames));
 			}
 		}
@@ -133,6 +165,7 @@ package com.enzuguri.synapse.builder.asmetadata
 		
 		protected function determineVariables(description:XML, proxy:IInstanceProxy):void
 		{
+			
 			for each (var node:XML in description.factory.*.
 				(name() == "variable" || name() == "accessor").metadata.(@name == "Inject"))
 			{
@@ -143,7 +176,6 @@ package com.enzuguri.synapse.builder.asmetadata
 					registryName = node.arg.@value.toString();
 				
 				proxy.addProcess(new PropertyInjectionProcess(propertyName, registryName));
-				
 			}
 		}
 		
@@ -155,8 +187,6 @@ package com.enzuguri.synapse.builder.asmetadata
 			if (node)
 			{
 				var xmk:XML = getRealConstrcutorXML(clazz, node.children().length());
-				//trace(xmk);
-//				proxy.addProcess(process)
 			}
 			else
 			{
