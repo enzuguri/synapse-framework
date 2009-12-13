@@ -57,7 +57,7 @@ package com.enzuguri.synapse.registry
 		{
 			var proxy:IInstanceProxy = resolveNamed(name);
 			if (proxy && dispose)
-				proxy.dispose();
+				proxy.dispose(this);
 			delete _nameHash[name];	
 		}
 
@@ -71,7 +71,7 @@ package com.enzuguri.synapse.registry
 			var proxy:IInstanceProxy = getProxyFromInstance(instance);
 			if(proxy)
 			{
-				proxy.disposeInstance(instance);
+				proxy.disposeInstance(this, instance);
 				if (remove)
 					delete _nameHash[proxy.name];
 			}

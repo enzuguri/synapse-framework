@@ -6,8 +6,9 @@ package com.enzuguri.synapse.builder.wire
 	import com.enzuguri.synapse.registry.IObjectRegistry;
 	import com.enzuguri.synapse.wire.EventCallback;
 	import com.enzuguri.synapse.wire.IWiringController;
-	import com.enzuguri.synapse.wire.WiredInstanceProxy;
 	import com.enzuguri.synapse.wire.WiringController;
+	import com.enzuguri.synapse.wire.process.InjectCallbackProcess;
+	import com.enzuguri.synapse.wire.process.WatchWireProcess;
 
 	/**
 	 * @author alex
@@ -17,8 +18,13 @@ package com.enzuguri.synapse.builder.wire
 	{
 		protected var _controller : IWiringController;
 		
-		public function ASWireBuilder(autoAdd:Boolean = true)
+		private var _controllerName:String;
+
+		
+		
+		public function ASWireBuilder(autoAdd:Boolean = true, controllerName:String = "")
 		{
+			_controllerName = controllerName != "" ? controllerName : getClassName(IWiringController);
 			_controller = new WiringController();
 			super(autoAdd);
 		}
@@ -30,39 +36,44 @@ package com.enzuguri.synapse.builder.wire
 		
 		private function determineEvents(description : XML, proxy : IInstanceProxy) : IInstanceProxy
 		{
-			var types:Array = [];
-			
-			var wireProxy:WiredInstanceProxy;
-			
-			var conNode:XML = description.factory.metadata[0];
-			
-			if(conNode && conNode.(@name == "Wire"))
-			{
-				var argNode:XML = conNode.arg[0];
-				if(argNode)
-					types = String(argNode.@value).split(",");
-				
-			}
-			
-			if (types.length > 0)
-				wireProxy = new WiredInstanceProxy(proxy, _controller, types);
-			
+			for each (var watchNode:XML in description.factory.metadata.(@name == "Wire"))
+				createWatchProcesses(watchNode, proxy);
 			
 			for each (var node:XML in description.factory.method.metadata.(@name == "Wire"))
-			{
-				if(!wireProxy) wireProxy = new WiredInstanceProxy(proxy, _controller);
-				createEventCallbacks(node, wireProxy);
-			}
+				createEventCallbacks(node, proxy);
 				
-			return wireProxy || proxy;
+			return proxy;
 		}
+
 		
-		private function createEventCallbacks(node:XML, proxy:WiredInstanceProxy) : void
+		
+		private function createWatchProcesses(watchNode:XML, proxy:IInstanceProxy):void
 		{
 			var types:Array = [];
+			var controllerName:String = _controllerName;
+			
+			for each (var argument : XML in watchNode.elements("arg")) 
+			{
+				if(argument.@key == "controller")
+					controllerName = String(argument.@value);
+				else if(argument.@key == "dispatch")
+					types = String(argument.@value).split(",");
+			}
+			
+			if(types.length > 0)
+				proxy.addProcess(new WatchWireProcess(types, controllerName));
+		}
+
+		
+		
+		private function createEventCallbacks(node:XML, proxy:IInstanceProxy) : void
+		{
+			var types:Array = [];
+			var controllerName:String = _controllerName;
 			var translations:Array;
-			var order:int = 1;
+			var priority:int = 0;
 			var methodName:String = node.parent().@name;
+			var autoWake:Boolean = true;
 			
 			for each(var arg:XML in node.arg)
 			{
@@ -75,15 +86,32 @@ package com.enzuguri.synapse.builder.wire
 						translations = String(arg.@value).split(",");
 						break;
 					case "order":
-						order = parseInt(arg.@value);
+						priority = parseInt(arg.@value);
+						break;
+					case "controller":
+						controllerName = _controllerName;
+						break;
+					case "wake":
+						autoWake = String(arg.@value) != "false";
 						break;		
+								
 				}
 			}
 			
 			var len:int = types.length;
 			for (var i : int = 0; i < len; i++) 
 			{
-				proxy.addCallback(new EventCallback(types[i], methodName, order, translations));
+				var callback:EventCallback = new EventCallback(types[i], methodName, priority, translations);
+				callback.targetName = proxy.name;
+				var process:InjectCallbackProcess = new InjectCallbackProcess(callback, controllerName);
+				
+				if(autoWake)
+				{
+					process.wired = true;
+					_controller.registerCallback(callback);
+				}
+				
+				proxy.addProcess(process);	
 			}
 		}
 
@@ -91,12 +119,11 @@ package com.enzuguri.synapse.builder.wire
 		{
 			super.addToRegistry(registry);
 			
-			if(!registry.hasTyped(IWiringController))
+			if(!registry.hasNamed(_controllerName))
 			{
-				var name:String = getClassName(IWiringController);
 				_controller.registry = registry;
-				var p:IInstanceProxy = createInstanceProxy(name, IWiringController, InstanceProxy.SINGLETON, _controller);
-				registry.registerProxy(p, name);
+				var p:IInstanceProxy = createInstanceProxy(_controllerName, IWiringController, InstanceProxy.SINGLETON, _controller);
+				registry.registerProxy(p, _controllerName);
 			}
 		}
 		

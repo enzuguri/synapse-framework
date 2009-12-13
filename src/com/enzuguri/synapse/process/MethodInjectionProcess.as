@@ -51,7 +51,7 @@ package com.enzuguri.synapse.process
 			return target;
 		}
 		
-		public function removeInjection(target : Object) : Object
+		public function removeInjection(registry:IObjectRegistry, target : Object) : Object
 		{
 			return target;
 		}

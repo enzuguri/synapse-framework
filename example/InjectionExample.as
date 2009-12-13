@@ -1,6 +1,7 @@
 
 package  
 {
+	import com.enzuguri.example.InjectionConfig;
 	import com.enzuguri.example.ExampleConfig;
 	import com.enzuguri.example.InjectAfter;
 	import com.enzuguri.example.WireReciever;
@@ -28,6 +29,8 @@ package
 			var registry:IObjectRegistry = new ObjectRegistry();
 			var eventBuilder:ASWireBuilder = new ASWireBuilder();
 			eventBuilder.buildIntoRegistry(registry, config);
+			
+			
 			
 			
 			var bean:Object = registry.resolveTyped(InjecteeClass);

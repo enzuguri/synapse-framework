@@ -12,6 +12,6 @@ package com.enzuguri.synapse.process
 		
 		function applyInjection(registry:IObjectRegistry, target:Object):Object;
 		
-		function removeInjection(target:Object):Object;
+		function removeInjection(registry:IObjectRegistry, target:Object):Object;
 	}
 }

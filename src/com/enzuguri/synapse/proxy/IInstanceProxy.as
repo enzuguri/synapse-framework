@@ -12,9 +12,9 @@ package com.enzuguri.synapse.proxy
 		
 		function get processList():Array;
 		
-		function dispose():void;
+		function dispose(registry:IObjectRegistry):void;
 		
-		function disposeInstance(instance:Object = null):void;
+		function disposeInstance(registry:IObjectRegistry, instance:Object = null):void;
 		
 		function addProcess(process:IInjectionProcess):void;
 		
