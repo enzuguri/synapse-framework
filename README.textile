@@ -1,0 +1,33 @@
+h1. Synapse Framework
+
+??A synapse is a neural junction used for communication between neurons?? wikipedia
+
+h2. What's all this then?
+
+The synapse framework aims to be a super lightweight, extendable and robust IoC and event routing system for use in AS3 projects.
+
+h2. I've heard that before, what makes Synapse different?
+
+The goal of synapse is to keep things super simple, the main focus is to keep the file size down, at the time of writing the metadata driven version of the framework will compile into 10kb, which makes it an ideal foot print for most projects.
+
+h2. Ok, so what do I get for my 10kb?
+
+You get an ObjectRegistry, which manages InstanceProxy instances. This is the basis of the IoC system, dependancies can be injected in all the usual places, constructors, methods, variables and accessors. You get lifecycle management of these instances, you can specify objects to be singletons, or created a-fresh on each separate request cycle. You can also 'un-inject' a specific instance, and support is planned to have stateless instances (class that are removed as soon as a certain method is called or event is fired).
+
+You can facilitate the adding of objects into a registry with the help of a 'builder', this helps to resolve dependancies on interfaces:
+<pre>
+	[Inject]
+	public var dispatcher:IEventDispatcher;
+	...
+	builder.buildWithClass(registry, Sprite, IEventDispatcher);
+</pre>
+
+With a builder you can also parse a 'config' which helps to boot strap your application. At present you specify configuration as AS classes, support is on the way for XML style configuration.
+
+h2. This all seems relatively standard, what else do I get?
+
+Synapse also supports a form of event 'wiring', that is automatically watching events on instantiated instances and routing these to handlers on other instances in the registry. For people familiar with the Parsley framework, you can expect much of the same features.
+
+??more info to come??
+
+	
