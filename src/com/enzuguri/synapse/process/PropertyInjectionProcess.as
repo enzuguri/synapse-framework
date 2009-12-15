@@ -12,13 +12,14 @@ package com.enzuguri.synapse.process
 
 		private var _propertyName:String;
 		
-		private var _registryName:String;
+		private var _registryName: String;
+		private var _order : int;
 
 		
 		
-		public function PropertyInjectionProcess(propertyName:String, registryName:String) 
+		public function PropertyInjectionProcess(propertyName:String, registryName:String, order:int = 0) 
 		{
-			
+			_order = order;
 			_registryName = registryName;
 			_propertyName = propertyName;
 		}
@@ -62,7 +63,11 @@ package com.enzuguri.synapse.process
 		
 		public function dispose():void
 		{
-			
+		}
+		
+		public function get order() : int
+		{
+			return _order;
 		}
 	}
 }

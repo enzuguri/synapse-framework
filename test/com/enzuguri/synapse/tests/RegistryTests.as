@@ -1,27 +1,28 @@
 
 package com.enzuguri.synapse.tests 
 {
-
 	import flexunit.framework.Assert;
-	import com.enzuguri.synapse.support.ClassInSameRegistry;
-	import com.enzuguri.synapse.support.ClassWithParentDependency;
+
+	import com.enzuguri.synapse.builder.metadata.MetaDataBuilder;
+	import com.enzuguri.synapse.registry.IObjectRegistry;
+	import com.enzuguri.synapse.registry.ObjectRegistry;
 	import com.enzuguri.synapse.registry.composite.CompositeRegistry;
 	import com.enzuguri.synapse.support.ClassInParentRegistry;
-	import com.enzuguri.synapse.builder.asmetadata.ASMetaDataBuilder;
-	import com.enzuguri.synapse.registry.ObjectRegistry;
-	import com.enzuguri.synapse.registry.IObjectRegistry;
+	import com.enzuguri.synapse.support.ClassInSameRegistry;
+	import com.enzuguri.synapse.support.ClassWithParentDependency;
+
 	/**
 	 * @author Alex Fell
 	 */
 	public class RegistryTests 
 	{
 
-		private var builder:ASMetaDataBuilder;
+		private var builder:MetaDataBuilder;
 		
 		[Before]
 		public function setup():void
 		{
-			builder = new ASMetaDataBuilder();
+			builder = new MetaDataBuilder();
 		}
 
 		

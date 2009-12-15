@@ -36,5 +36,10 @@ package com.enzuguri.synapse.process
 		public function dispose():void
 		{
 		}
+		
+		public function get order() : int
+		{
+			return 0;
+		}
 	}
 }

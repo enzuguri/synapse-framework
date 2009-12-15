@@ -12,13 +12,15 @@ package com.enzuguri.synapse.process
 
 		private var _methodName:String;
 		
-		private var _registryNames:Array;
+		private var _registryNames : Array;
+	
+		private var _order : int;
 
 		
 		
-		public function MethodInjectionProcess(methodName:String, registryNames:Array = null) 
+		public function MethodInjectionProcess(methodName:String, registryNames:Array = null, order:int = 0) 
 		{
-			
+			_order = order;
 			_methodName = methodName;
 			_registryNames = registryNames || [];
 		}
@@ -27,19 +29,21 @@ package com.enzuguri.synapse.process
 		
 		public function applyInjection(registry:IObjectRegistry, target:Object):Object
 		{
-			
 			if(target)
 			{
 				try
 				{
-					var argArray:Array = [];
-					var len:int = _registryNames.length;
-					for (var i : int = 0; i < len; i++) 
+					if(_registryNames.length == 0)
+						(target[_methodName] as Function)();
+					else
 					{
-						argArray[i] = registry.resolveNamed(_registryNames[i]);
+						var argArray:Array = [];
+						var len:int = _registryNames.length;
+						for (var i : int = 0; i < len; i++) 
+							argArray[i] = registry.resolveNamed(_registryNames[i]);
+						
+						(target[_methodName] as Function).apply(this, argArray);
 					}
-					
-					(target[_methodName] as Function).apply(this, argArray);
 				}
 				catch(err:Error)
 				{
@@ -60,6 +64,11 @@ package com.enzuguri.synapse.process
 		
 		public function dispose():void
 		{
+		}
+		
+		public function get order() : int
+		{
+			return _order;
 		}
 	}
 }

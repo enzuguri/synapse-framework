@@ -13,10 +13,13 @@ package com.enzuguri.synapse.wire
 		private var _methodName : String;
 		private var _translations : Array;
 		private var _priority : int;
-		private var _targetName:String;
-		
-		public function EventCallback(type:String, methodName:String, priority:int = 0, translations:Array = null) 
+		private var _targetName: String;
+		private var _isSetter : Boolean;
+
+		public function EventCallback(type:String, methodName:String, priority:int = 0, translations:Array = null, 
+			isSetter:Boolean = false) 
 		{
+			_isSetter = isSetter;
 			_priority = priority;
 			_translations = translations;
 			_methodName = methodName;
@@ -42,7 +45,10 @@ package com.enzuguri.synapse.wire
 			var success:Boolean = true;
 			try
 			{
-				(target[_methodName] as Function).apply(this, params);
+				if(_isSetter)
+					target[_methodName] = params[0];
+				else	
+					(target[_methodName] as Function).apply(this, params);
 			}
 			catch(err:WireError)
 			{

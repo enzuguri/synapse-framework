@@ -15,12 +15,15 @@ package com.enzuguri.synapse.wire.process
 
 		private var _controllerName:String;
 		
-		private var _eventTypes:Array;
+		private var _eventTypes : Array;
+		
+		private var _order : int;
 
 		
 		
-		public function WatchWireProcess(eventTypes:Array, controllerName:String) 
+		public function WatchWireProcess(eventTypes:Array, controllerName:String, order:int = 0) 
 		{
+			_order = order;
 			_eventTypes = eventTypes;
 			_controllerName = controllerName;
 		}
@@ -56,6 +59,11 @@ package com.enzuguri.synapse.wire.process
 				controller.ignoreDispatcher(dispatcher, _eventTypes);
 				
 			return target;
+		}
+		
+		public function get order() : int
+		{
+			return _order;
 		}
 	}
 }
