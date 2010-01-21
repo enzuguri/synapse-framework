@@ -92,7 +92,7 @@ package com.enzuguri.synapse.wire
 		public function removeCallback(callback : EventCallback) : void
 		{
 			var callbacks:Array = _callbackMap[callback.type];
-			if(!callbacks)
+			if(callbacks)
 			{
 				var index : int = callbacks.indexOf(callback);
 				if(index > -1)

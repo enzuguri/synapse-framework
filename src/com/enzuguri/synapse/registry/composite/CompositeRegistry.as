@@ -6,7 +6,9 @@ package com.enzuguri.synapse.registry.composite
 	/**
 	 * @author alex
 	 */
-	public class CompositeRegistry extends ObjectRegistry implements ICompositeRegistry 
+	public class CompositeRegistry 
+		extends ObjectRegistry 
+			implements ICompositeRegistry 
 	{
 		protected var _referencedRegistries : Array;
 		
@@ -77,6 +79,13 @@ package com.enzuguri.synapse.registry.composite
 		public function clearReferencedRegistries() : void
 		{
 			_referencedRegistries.length = 0;
+		}
+		
+		
+		
+		public function hasReferencedRegistry(registry : IObjectRegistry) : Boolean
+		{
+			return _referencedRegistries.indexOf(registry) > -1;
 		}
 	}
 }

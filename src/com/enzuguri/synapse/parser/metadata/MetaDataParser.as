@@ -152,7 +152,8 @@ package com.enzuguri.synapse.parser.metadata
 			for (var i : int = 0;i < len;i++) 
 			{
 				var callback : EventCallback = new EventCallback(types[i], methodName, priority, translations, forceAccessor);
-				callbacks[callbacks.length] = createEventCallbackProcess(callback, autoWake, controllerName);	
+				// Pass the 'master' controller name to the process, but the custom name to the callback
+				callbacks[callbacks.length] = createEventCallbackProcess(callback, autoWake, controlName);	
 			}
 		}
 		

@@ -66,7 +66,7 @@ package com.enzuguri.synapse.registry
 			removeNamed(getClassName(type), dispose);
 		}
 
-		public function disposeInstance(instance : Object, remove : Boolean = true) : void
+		public function disposeInstance(instance : Object, remove : Boolean = false) : Boolean
 		{
 			var proxy:IInstanceProxy = getProxyFromInstance(instance);
 			if(proxy)
@@ -74,7 +74,9 @@ package com.enzuguri.synapse.registry
 				proxy.disposeInstance(this, instance);
 				if (remove)
 					delete _nameHash[proxy.name];
+				return true;	
 			}
+			return false;
 		}
 		
 		protected function getClassName(value:Object):String
@@ -104,12 +106,12 @@ package com.enzuguri.synapse.registry
 		
 		public function hasNamed(name : String) : Boolean
 		{
-			return resolveNamed(name) != null;
+			return _nameHash[name] != null;
 		}
 		
 		public function hasTyped(type : Class) : Boolean
 		{
-			return resolveTyped(type) != null;
+			return hasNamed(getClassName(type));
 		}
 	}
 }
